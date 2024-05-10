@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="../static/log_style.css">
+    <title>Log In the System</title>
+</head>
+<body>
+    <div>
+    <h1>Users login</h1>
+    <!--将登陆信息放到一个form中-->
+    <form method="POST">
+        <input type="text" name="username" placeholder="Please enter your username" />
+        <br/>
+        <input type="password" name="password" placeholder="Please enter your password (8~12 digits)" />
+        <br/>
+         <!--jinja2的函数-->
+        {% if message %} {{message}} {% endif %}
+        <br/>
+        <input type="reset" value="Reset" />
+        <input type="submit" value="Login" />
+        <!--跳转到register的页面-->
+        <a href="{{ url_for('register') }}">Sign in</a>
+    </form>
+    </div>
+</body>
+</html>
+

@@ -1,0 +1,18 @@
+body {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+img {
+    margin: 5px;
+}
+
+a.exit-link {
+    position: absolute;
+    top: 100px;
+    right: 100px;
+    margin: 10px;
+  }

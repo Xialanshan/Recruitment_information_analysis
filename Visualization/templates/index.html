@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recruitment Website Data Analysis System</title>
+    <link rel="stylesheet" type="text/css" href="../static/index_style.css">
+</head>
+<body>
+    <div>
+        <h1>Welcome to the recruitment website data analysis system</h1>
+        
+        <form>
+            <label for="city">选择城市:</label>
+            <select title = '请选择城市:' name="city" id="city-select">
+                <option value="上海" selected>上海</option>
+            </select>
+            
+            <label for="position">选择职业:</label>
+            <select title = '请选择职业:' name="position" id="position-select">
+                <optgroup label="后端开发">
+                    <option id = '1'>Java</option>
+                    <option id = '2' value = 'c_cjiajia'>C/C++</option>
+                    <option id = '3'>PHP</option>
+                    <option id = '4'>Python</option>
+                    <option id = '5' value = '_net'>.NET</option>
+                    <option id = '6'>Golang</option>
+                    <option id = '7' value = 'Node_js'>Node.js</option>
+                    <option id = '8'>Hadoop</option>
+                    <option id = '9' value = 'yuyinshipintuxingkaifa'>语音/视频/图形开发</option>
+                    <option id = '10'>数据采集</option>
+                    <option id = '11'>GIS工程师</option>
+                    <option id = '12'>全栈工程师</option>
+                </optgroup>
+                <optgroup label="前端/移动开发">
+                    <option id = '13'>前端开发工程师</option>
+                    <option id = '14'>Android</option>
+                    <option id = '15'>IOS</option>
+                    <option id = '16' value = 'uthreed'>U3D</option>
+                    <option id = '17' value = 'uefour'>UE4</option>
+                    <option id = '18'>Cocos</option>
+                    <option id = '19'>技术美术</option>
+                </optgroup>
+                <optgroup label="测试">
+                    <option id = '20'>测试工程师</option>
+                    <option id = '21'>软件测试</option>
+                    <option id = '22'>自动化测试</option>
+                    <option id = '23'>功能测试</option>
+                    <option id = '24'>测试开发</option>
+                    <option id = '25'>硬件测试</option>
+                    <option id = '26'>游戏测试</option>
+                    <option id = '27'>性能测试</option>
+                    <option id = '28'>渗透测试</option>
+                    <option id = '29'>移动端测试</option>
+                </optgroup>
+                <optgroup label="运维/技术支持">
+                    <option id = '30'>运维工程师</option>
+                    <option id = '31'>IT技术支持</option>
+                    <option id = '32'>网络工程师</option>
+                    <option id = '33'>网络安全</option>
+                    <option id = '34'>系统工程师</option>
+                    <option id = '35'>运维开发工程师</option>
+                    <option id = '36'>系统管理员</option>
+                    <option id = '37'>DBA</option>
+                    <option id = '38'>系统安全</option>
+                    <option id = '39'>技术文档工程师</option>
+                </optgroup>
+                <optgroup label="人工智能">
+                    <option id = '40'>图像算法</option>
+                    <option id = '41'>自然语言处理算法</option>
+                    <option id = '42'>大模型算法</option>
+                    <option id = '43'>数据挖掘</option>
+                    <option id = '44'>规控算法</option>
+                    <option id = '45'>SLAM算法</option>
+                    <option id = '46'>推荐算法</option>
+                    <option id = '47'>搜索算法</option>
+                    <option id = '48'>语音算法</option>
+                    <option id = '49'>风控算法</option>
+                    <option id = '50'>算法工程师</option>
+                    <option id = '51'>机器学习</option>
+                    <option id = '52'>深度学习</option>
+                    <option id = '53'">AI训练师</option>
+                </optgroup>
+            </select>
+            
+        </form>          
+        
+        <div class="button-container">
+            <button id="show-info-btn" onclick="show_info(event)">Show Info</button>
+            <button id="scatter-plot-btn" onclick="scatter_plot(event)">Scatter Plot</button>
+            <button id="line-bar-chart-btn" onclick="line_bar_chart(event)">Line & Bar Chart</button>
+            <button id="wordcloud-btn" onclick="wordcloud(event)">WordCloud</button>
+            <button id="rank-btn" onclick="rank(event)">Rank</button>
+        </div>
+        <a href="{{ url_for('user_login') }}" class="exit-link">Exit</a>
+        <br/>
+        <!-- 添加用于显示数据的区域 -->
+        <div id="iframe-container">
+            <iframe title="iframe-title" id="my-iframe" src="about:blank"></iframe>
+            <div id="image-container"></div>
+            <div id="cloud-container"></div>
+        </div>
+        <br/>
+    </div>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="../static/echarts.min.js"></script>
+    <script src="../static/echarts-wordcloud.min.js"></script>
+    <script>
+        $("#iframe-container").hide()
+        function sendRequest(city, position, action) {
+            $.ajax({
+                type: "POST",
+                url: "/home/" + action,
+                timeout: 5000,
+                contentType: "application/json",    // 设置Content-Type头部为application/json
+                data: JSON.stringify({              // 将数据转换为JSON字符串
+                    city: city,
+                    position: position
+                }),
+                success: function(responseData) {
+                    console.log(responseData);
+                    if (action == 'show_info'){
+                        $("#iframe-container").show();      // 显示 <iframe> 容器
+                        $("#cloud-container").hide();
+                        $("#image-container").hide();    
+                        $("#my-iframe").show()
+                        var chartContainer = document.getElementById("image-container");
+                        var chart = echarts.init(chartContainer);
+                        chart.clear();
+                        var cloudContainer = document.getElementById("cloud-container");
+                        var cloud = echarts.init(cloudContainer);
+                        cloud.clear();
+                        var iframe = document.getElementById("my-iframe");
+                        var result = responseData.result;
+                        var attributes = ['title', 'location', 'salary', 'experience', 'education', 'benefits','skills','company_size'];
+
+                        // 创建表格元素
+                        var table = document.createElement("table");
+                        table.classList.add("custom-table"); 
+
+                        // 添加表头行
+                        var headerRow = document.createElement("tr");
+                        var thId = document.createElement("th");
+                        thId.textContent = "ID";
+                        headerRow.appendChild(thId);
+                        for (var i = 0; i < attributes.length; i++) {
+                            var th = document.createElement("th");
+                            th.textContent = attributes[i];
+                            headerRow.appendChild(th);
+                        }
+                        table.appendChild(headerRow);
+                        // 遍历结果数组
+                        var index = 1; // 初始化编号为1
+                        for (var i = 0; i < result.length; i++) {
+                            var row = result[i];
+                            // 创建表格行
+                            var tableRow = document.createElement("tr");
+                            // 创建表格单元格，显示编号
+                            var cellId = document.createElement("td");
+                            cellId.textContent = index++;
+                            tableRow.appendChild(cellId);
+                            // 遍历列属性
+                            for (var j = 0; j < attributes.length; j++) {
+                                var attribute = attributes[j];
+                                // 创建表格单元格
+                                var cell = document.createElement("td");
+                                cell.textContent = row[attribute];
+
+                                if (attribute === 'benefits' && row[attribute] === '') {
+                                    cell.textContent = '暂无';
+                                } else {
+                                    cell.textContent = row[attribute];
+                                }
+                                // 添加颜色相间的竖线
+                                if (j % 2 === 0) {
+                                    cell.classList.add("odd-column"); 
+                                }
+
+                                tableRow.appendChild(cell);
+                            }
+                            // 将行添加到表格中
+                            table.appendChild(tableRow);
+
+                            // 添加横线分隔行
+                            if (i < result.length - 1) {
+                                var separatorRow = document.createElement("tr");
+                                separatorRow.classList.add("separator-row"); 
+                                table.appendChild(separatorRow);
+                            }
+                        }
+                        // 将表格添加到iframe框架中
+                        var iframe = document.getElementById("my-iframe");
+                        var iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
+                        var link = document.createElement("link");
+                        link.rel = "stylesheet";
+                        link.type = "text/css";
+                        link.href = "../static/index_style.css";       // 替换为实际的样式文件路径
+                        iframeDocument.head.appendChild(link);
+                        iframeDocument.body.innerHTML = "";            // 清空my-iframe中的内容
+                        iframeDocument.body.appendChild(table);
+                    }
+                    else if (action == 'scatter_plot_education' || action == 'scatter_plot_experience' || action == 'scatter_plot_company_size') {
+                        $("#iframe-container").show();      
+                        var my_iframe = document.getElementById("my-iframe");
+                        $("#my-iframe").hide().attr("src", "about:blank");
+                        $("#cloud-container").hide();
+                        $("#image-container").show();    
+                        var chartContainer = document.getElementById("image-container");
+                        var chart = echarts.init(chartContainer);
+                        chart.clear();
+                        var cloudContainer = document.getElementById("cloud-container");
+                        var cloud = echarts.init(cloudContainer);
+                        cloud.clear();
+                        var echarts_code = responseData;
+                        var option = JSON.parse(echarts_code)
+                        option.series[0].itemStyle = {
+                            normal: {
+                                color: function(params) {
+                                    var dataIndex = params.dataIndex;
+                                    var xValue = option.series[0].data[dataIndex][0];
+                                    var color = getColorByValue(xValue);
+                                    return color;
+                                }
+                            }
+                        };
+                        // 初始化图表
+                        var chartContainer = document.getElementById("image-container");
+                        var chart = echarts.init(chartContainer);
+                        chart.setOption(option);
+                    }
+                    
+                    else if (action == 'education_chart' || action == 'experience_chart' || action == 'company_size_chart'){
+                        $("#iframe-container").show();      
+                        var my_iframe = document.getElementById("my-iframe");
+                        $("#my-iframe").hide().attr("src", "about:blank");
+                        $("#cloud-container").hide();
+                        $("#image-container").show();   
+                        var chartContainer = document.getElementById("image-container");
+                        var chart = echarts.init(chartContainer);
+                        chart.clear();
+                        var cloudContainer = document.getElementById("cloud-container");
+                        var cloud = echarts.init(cloudContainer);
+                        cloud.clear();
+                        var option = JSON.parse(responseData);
+                        
+                        var chartContainer = document.getElementById("image-container");
+                        var chart = echarts.init(chartContainer);
+                        chart.setOption(option);
+                    }
+                    else if (action == 'benefits_cloud' || action == 'skills_cloud'){
+                        $("#iframe-container").show();      
+                        var my_iframe = document.getElementById("my-iframe");
+                        $("#my-iframe").hide().attr("src", "about:blank");
+                        $("#cloud-container").show();
+                        $("#image-container").hide();    
+                        var chartContainer = document.getElementById("image-container");
+                        var chart = echarts.init(chartContainer);
+                        chart.clear();
+                        var cloudContainer = document.getElementById("cloud-container");
+                        var cloud = echarts.init(cloudContainer);
+                        cloud.clear();
+                        
+                        var cloudData = JSON.parse(responseData);
+                        var wordCount = cloudData.word_count;
+                        var wordcloudData = [];
+                        for (var word in wordCount) {
+                            wordcloudData.push({ name: word, value: wordCount[word] });
+                        }
+                        var wordcloudChart = echarts.init(document.getElementById('cloud-container'));
+                        var option = {
+                            series: [{
+                                type: 'wordCloud',
+                                shape: "pentagon",
+                                gridSize: 10,
+                                sizeRange: [15, 50],
+                                rotationRange: [-45, 45],
+                                textStyle: {
+                                    fontFamily: 'sans-serif',
+                                    fontWeight: 'bold',
+                                    color: function () {
+                                        // 随机生成颜色
+                                        return 'rgb(' + [
+                                            Math.round(Math.random() * 200),
+                                            Math.round(Math.random() * 200),
+                                            Math.round(Math.random() * 200)
+                                        ].join(',') + ')';
+                                    }
+                                },
+                                data: wordcloudData
+                            }],
+                        };
+                    wordcloudChart.setOption(option);
+                    }
+                    else if (action == 'rank'){
+                        window.location.href = "/home/rank";
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.log("Error: " + error);
+                }
+            });
+        }
+
+        function show_info(event) {
+            event.preventDefault();         // 阻止表单的默认提交行为
+
+            var city = document.getElementById("city-select").value;
+            var position = document.getElementById("position-select").value;
+            
+            // 执行请求并处理响应的逻辑
+            sendRequest(city, position, 'show_info');
+        }
+
+        function scatter_plot(event) {
+            // 检查是否已经存在新按钮容器，存在则返回
+            if (document.getElementById("new-button-container")) {
+                return;
+            }
+
+            // 创建新的按钮容器
+            var newButtonContainer = document.createElement("div");
+            newButtonContainer.className = "new-button-container";
+            newButtonContainer.id = "new-button-container";
+
+            // 创建新按钮
+            var newButton1 = document.createElement("button");
+            newButton1.innerHTML = "scatter-plot-education";
+            newButton1.id = "scatter-plot-education";
+            newButton1.addEventListener("click", function() {
+                event.preventDefault(); 
+                var city = document.getElementById("city-select").value;
+                var position = document.getElementById("position-select").value;
+                
+                sendRequest(city, position, 'scatter_plot_education');
+            });
+
+            var newButton2 = document.createElement("button");
+            newButton2.innerHTML = "scatter-plot-experience";
+            newButton2.id = "scatter-plot-experience";
+            newButton2.addEventListener("click", function() {
+                event.preventDefault(); 
+                var city = document.getElementById("city-select").value;
+                var position = document.getElementById("position-select").value;
+                
+                sendRequest(city, position, 'scatter_plot_experience');
+            });
+
+            var newButton3 = document.createElement("button");
+            newButton3.innerHTML = "scatter-plot-company_size";
+            newButton3.id = "scatter-plot-company_size";
+            newButton3.addEventListener("click", function() {
+                event.preventDefault(); 
+                var city = document.getElementById("city-select").value;
+                var position = document.getElementById("position-select").value;
+                
+                sendRequest(city, position, 'scatter_plot_company_size');
+            });
+
+            newButtonContainer.appendChild(newButton1);
+            newButtonContainer.appendChild(newButton2);
+            newButtonContainer.appendChild(newButton3);
+
+            var buttonContainer = document.getElementsByClassName("button-container")[0];
+            buttonContainer.parentNode.insertBefore(newButtonContainer, buttonContainer.nextSibling);
+
+            document.getElementById("show-info-btn").onclick = function() {
+                removeNewButtonContainer();
+            };
+
+            document.getElementById("line-bar-chart-btn").onclick = function() {
+                removeNewButtonContainer();
+            };
+
+            document.getElementById("wordcloud-btn").onclick = function() {
+                removeNewButtonContainer();
+            };
+
+            // 移除新按钮容器的函数
+            function removeNewButtonContainer() {
+                newButtonContainer.parentNode.removeChild(newButtonContainer);
+            }
+        }
+
+        function line_bar_chart(event) {
+            // 检查是否已经存在新按钮容器，存在则返回
+            if (document.getElementById("new-button-container-two")) {
+                return;
+            }
+
+            var newButtonContainer = document.createElement("div");
+            newButtonContainer.className = "new-button-container-two";
+            newButtonContainer.id = "new-button-container-two";
+
+            var newButton1 = document.createElement("button");
+            newButton1.innerHTML = "education-chart";
+            newButton1.id = "education-chart";
+            newButton1.addEventListener("click", function() {
+                event.preventDefault(); 
+                var city = document.getElementById("city-select").value;
+                var position = document.getElementById("position-select").value;
+
+                sendRequest(city, position, 'education_chart');
+            });
+
+            var newButton2 = document.createElement("button");
+            newButton2.innerHTML = "experience-chart";
+            newButton2.id = "experience-chart";
+            newButton2.addEventListener("click", function() {
+                event.preventDefault(); 
+                var city = document.getElementById("city-select").value;
+                var position = document.getElementById("position-select").value;
+
+                sendRequest(city, position, 'experience_chart');
+            });
+
+            var newButton3 = document.createElement("button");
+            newButton3.innerHTML = "company_size-chart";
+            newButton3.id = "company_size-chart";
+            newButton3.addEventListener("click", function() {
+                event.preventDefault(); 
+                var city = document.getElementById("city-select").value;
+                var position = document.getElementById("position-select").value;
+
+                sendRequest(city, position, 'company_size_chart');
+            });
+
+            // 将新按钮添加到新按钮容器中
+            newButtonContainer.appendChild(newButton1);
+            newButtonContainer.appendChild(newButton2);
+            newButtonContainer.appendChild(newButton3);
+
+            // 将新按钮容器插入到原按钮容器之后
+            var buttonContainer = document.getElementsByClassName("button-container")[0];
+            buttonContainer.parentNode.insertBefore(newButtonContainer, buttonContainer.nextSibling);
+
+            // 绑定其他按钮的点击事件，点击时移除新按钮容器
+            document.getElementById("show-info-btn").onclick = function() {
+                removeNewButtonContainer();
+            };
+
+            document.getElementById("scatter-plot-btn").onclick = function() {
+                removeNewButtonContainer();
+            };
+
+            document.getElementById("wordcloud-btn").onclick = function() {
+                removeNewButtonContainer();
+            };
+            // 移除新按钮容器的函数
+            function removeNewButtonContainer() {
+                newButtonContainer.parentNode.removeChild(newButtonContainer);
+            }
+        }
+        
+        function wordcloud(event) {
+            // 检查是否已经存在新按钮容器，存在则返回
+            if (document.getElementById("new-button-container-three")) {
+                return;
+            }
+            // 创建新的按钮容器
+            var newButtonContainer = document.createElement("div");
+            newButtonContainer.className = "new-button-container-three";
+            newButtonContainer.id = "new-button-container-three";
+            // 创建新按钮
+            var newButton1 = document.createElement("button");
+            newButton1.innerHTML = "benefits-cloud";
+            newButton1.id = "benefits-cloud";
+            newButton1.addEventListener("click", function() {
+                event.preventDefault(); // 阻止表单的默认提交行为
+                var city = document.getElementById("city-select").value;
+                var position = document.getElementById("position-select").value;
+                // 执行请求并处理响应的逻辑
+                sendRequest(city, position, 'benefits_cloud');
+            });
+            var newButton2 = document.createElement("button");
+            newButton2.innerHTML = "skills-cloud";
+            newButton2.id = "skills-cloud";
+            newButton2.addEventListener("click", function() {
+                event.preventDefault(); // 阻止表单的默认提交行为
+                var city = document.getElementById("city-select").value;
+                var position = document.getElementById("position-select").value;
+                // 执行请求并处理响应的逻辑
+                sendRequest(city, position, 'skills_cloud');
+            });
+            // 将新按钮添加到新按钮容器中
+            newButtonContainer.appendChild(newButton1);
+            newButtonContainer.appendChild(newButton2);
+            // 将新按钮容器插入到原按钮容器之后
+            var buttonContainer = document.getElementsByClassName("button-container")[0];
+            buttonContainer.parentNode.insertBefore(newButtonContainer, buttonContainer.nextSibling);
+            // 绑定其他按钮的点击事件，点击时移除新按钮容器
+            document.getElementById("show-info-btn").onclick = function() {
+                removeNewButtonContainer();
+            };
+            document.getElementById("scatter-plot-btn").onclick = function() {
+                removeNewButtonContainer();
+            };
+            document.getElementById("line-bar-chart-btn").onclick = function() {
+                removeNewButtonContainer();
+            };
+            // 移除新按钮容器的函数
+            function removeNewButtonContainer() {
+                newButtonContainer.parentNode.removeChild(newButtonContainer);
+            }
+        }
+        
+        function rank(event){
+            event.preventDefault(); // 阻止表单的默认提交行为
+            var city = document.getElementById("city-select").value;
+            var position = document.getElementById("position-select").value;
+            // 执行请求并处理响应的逻辑
+            sendRequest(city, position, 'rank');
+        }
+
+        function getColorByValue(value) {
+            // 在这里根据数值范围返回对应的颜色值,散点图使用
+            if (value < 10000) {
+                return '#ed5565';
+            } else if (value < 20000) {
+                return '#6d9ed8';
+            } else if(value < 30000){
+                return '#ff9900';
+            }else if(value < 40000){
+                return '#3de30a'
+            }else{
+                return '#f71695'
+            }
+        }
+
+        $(document).ready(function() {
+            // 当城市选择框的值发生改变时
+            $("#city-select, #position-select").change(function() {
+                // 重置iframe内容
+                var my_iframe = document.getElementById("my-iframe");
+                my_iframe.srcdoc = "";
+
+                // 清空图表
+                var chartContainer = document.getElementById("image-container");
+                var chart = echarts.init(chartContainer);
+                chart.clear();
+                var cloudContainer = document.getElementById("cloud-container");
+                var cloud = echarts.init(cloudContainer);
+                cloud.clear();
+                });
+
+            // 当"Show Info"按钮点击时
+            $("#show-info-btn").click(function(event) {
+                show_info(event);
+            });
+
+            // 当"Scatter Plot"按钮点击时
+            $("#scatter-plot-btn").click(function(event) {
+                scatter_plot(event);
+            });
+
+            // 当"Line & Bar Chart"按钮点击时
+            $("#line-bar-chart-btn").click(function(event) {
+                line_bar_chart(event);
+            });
+
+            $("#wordcloud-btn").click(function(event) {
+                wordcloud(event);
+            });
+            $("#rank-btn").click(function(event) {
+                rank(event);
+            });
+
+        });
+
+    </script>
+</body>
+</html>

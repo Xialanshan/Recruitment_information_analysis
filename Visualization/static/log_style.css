@@ -1,0 +1,49 @@
+body {
+    background-image: url("./web1.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+div {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 500px;
+    height: 400px;
+    border: 1px  solid #0f1b15;
+    border-radius: 10px;
+    text-align: center;
+}
+
+
+h1 {
+    color: #000000;
+}
+
+input[type="text"],
+input[type="password"] {
+    width: 80%;
+    padding: 10px;
+    margin-bottom: 20px;
+    border-radius: 10px
+}
+
+input[type="password"] {
+    margin-bottom: 40px;
+}
+
+input[type="submit"],
+input[type="reset"] {
+    padding: 10px 20px;
+    background-color: #00AA88;
+    border: none;
+    cursor: pointer;
+    margin-right: 20px;
+    margin-top: 30px;
+    border-radius: 10px
+}
+
+a {
+    color: #029477;
+}
