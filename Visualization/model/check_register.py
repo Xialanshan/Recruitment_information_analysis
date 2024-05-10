@@ -1,11 +1,16 @@
 import mysql.connector
+from environs import Env   
+env = Env()     
+env.read_env()
 
 def add_user(username, password):
     db = mysql.connector.connect(
-            host='localhost',
-            user='root',
-            password='12041111Xx',
-            database='account_management')
+        host=env('HOST'),
+        user=env('USER'),
+        password=env('PASSWORD'),
+        database=env('DATABASE_ACCOUNT')
+    )
+    
     cur = db.cursor()
     try:
         sql = "INSERT INTO user (username, password) VALUES ('%s', '%s')" % (username, password)

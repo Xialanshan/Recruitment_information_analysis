@@ -1,4 +1,7 @@
 import mysql.connector
+from environs import Env   
+env = Env()     
+env.read_env()
 
 def is_null(username,password):
 	if(username==''or password==''):
@@ -8,11 +11,12 @@ def is_null(username,password):
 
 def is_existed(username, password):
     db = mysql.connector.connect(
-            host='localhost',
-            user='root',
-            password='12041111Xx',
-            database='account_management'
-            )
+        host=env('HOST'),
+        user=env('USER'),
+        password=env('PASSWORD'),
+        database=env('DATABASE_ACCOUNT')
+    )
+    
     cur = db.cursor()
     try:
         sql = "SELECT * FROM user WHERE username = '%s' and password = '%s'" % (username, password)
@@ -29,11 +33,11 @@ def is_existed(username, password):
 
 def exist_user(username):
     db = mysql.connector.connect(
-            host='localhost',
-            user='root',
-            password='12041111Xx',
-            database='account_management'
-            )
+        host=env('HOST'),
+        user=env('USER'),
+        password=env('PASSWORD'),
+        database=env('DATABASE_ACCOUNT')
+    )
     cur = db.cursor()
     try:
         sql = "SELECT * FROM user WHERE username = '%s'" % username
